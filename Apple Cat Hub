@@ -1,0 +1,126 @@
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local gui = Instance.new("ScreenGui")
+gui.Parent = player.PlayerGui            
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 400, 0, 600)
+mainFrame.Position = UDim2.new(0.5, -200, 0.5, -300)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+mainFrame.Parent = gui
+
+-- Add title for the GUI
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(0, 400, 0, 40)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.Text = "Apple Cat Hub"
+title.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextSize = 24
+title.Parent = mainFrame
+
+-- Function to activate Armament Haki (Auto Haki)
+local function activateArmamentHaki()
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    local haki = character:FindFirstChild("ArmamentHaki")
+    
+    if haki and not haki.Enabled then
+        haki.Enabled = true
+        print("Activating Armament Haki...")
+    end
+end
+
+-- Function to get quest information based on player level and Sea
+local function getQuestInfo(level)
+    if level < 10 then
+        return "BanditQuest1", "Bandit", CFrame.new(1060, 17, 1547)
+    elseif level < 30 then
+        return "JungleQuest", "Monkey", CFrame.new(-1350, 37, 200)
+    elseif level < 50 then
+        return "BuggyQuest", "Buggy", CFrame.new(-2512, 22, 2057)
+    elseif level < 100 then
+        return "PirateQuest", "Pirate", CFrame.new(-2300, 27, 1100)
+    elseif level < 150 then
+        return "BanditQuest2", "Bandit King", CFrame.new(-2290, 75, -1383)
+    elseif level < 175 then
+        return "JungleQuest", "Vampire", CFrame.new(-3500, 80, 340)
+    elseif level < 200 then
+        return "MagmaQuest", "Magma Boss", CFrame.new(-4050, 38, 1450)
+    elseif level < 250 then
+        return "SkyIslandQuest", "Angel", CFrame.new(7200, 230, 600)
+    elseif level < 300 then
+        return "SkyIslandQuest", "Demon", CFrame.new(7300, 230, -800)
+    elseif level >= 300 then
+        return "FinalQuest", "Final Boss", CFrame.new(8500, 250, 900)
+    end
+end
+
+-- Function to check Sea level and auto switch if needed
+local function checkSeaTransition(level)
+    if level >= 300 then
+        print("Transitioning to Sea 3...")
+    elseif level >= 200 then
+        print("Transitioning to Sea 2...")
+    else
+        print("Staying in Sea 1...")
+    end
+end
+
+-- Function to automatically start and complete quests, and activate Haki
+local function autoLevel()
+    local player = game.Players.LocalPlayer
+    local level = player.Data.Level.Value -- Get current player level
+    local quest, mob, mobPos = getQuestInfo(level)
+    
+    if quest then
+        -- Start quest and move to mob position
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Quest", "StartQuest", quest, 1)
+        wait(1)
+        local hrp = player.Character.HumanoidRootPart
+        hrp.CFrame = mobPos + Vector3.new(0, 5, 0)  -- Move to mob position
+        
+        -- Activate Armament Haki before engaging the mob
+        activateArmamentHaki()
+        
+        print("Auto Leveling... to defeat " .. mob)
+        
+        -- Check if level transition is needed
+        checkSeaTransition(level)
+    else
+        print("No valid quest found for this level.")
+    end
+end
+
+-- Create button to start Auto Level
+local autoLevelButton = Instance.new("TextButton")
+autoLevelButton.Size = UDim2.new(0, 200, 0, 50)
+autoLevelButton.Position = UDim2.new(0.5, -100, 0, 60)
+autoLevelButton.Text = "Start Auto Level"
+autoLevelButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+autoLevelButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+autoLevelButton.TextSize = 18
+autoLevelButton.Parent = mainFrame
+
+-- Button functionality: Start Auto Leveling
+autoLevelButton.MouseButton1Click:Connect(function()
+    while true do
+        autoLevel() -- Call autoLevel function every 2 seconds
+        wait(2)
+    end
+end)
+
+-- Add button for enabling Auto Haki
+local autoHakiButton = Instance.new("TextButton")
+autoHakiButton.Size = UDim2.new(0, 200, 0, 50)
+autoHakiButton.Position = UDim2.new(0.5, -100, 0, 120)
+autoHakiButton.Text = "Activate Haki"
+autoHakiButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+autoHakiButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+autoHakiButton.TextSize = 18
+autoHakiButton.Parent = mainFrame
+
+-- Button functionality: Activate Haki
+autoHakiButton.MouseButton1Click:Connect(function()
+    activateArmamentHaki()
+    print("Haki Activated!")
+end)
